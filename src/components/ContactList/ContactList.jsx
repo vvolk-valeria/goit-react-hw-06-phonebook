@@ -1,29 +1,35 @@
-import PropTypes from 'prop-types';
 import { ContainerList, Item, Btn } from './ContactList.styled';
+import { getContacts, getFilterValue } from '../../redux/selectors';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteСontact } from '../../redux/contacsSlice';
 
-export const ContactList = ({ contacts, deleteContact }) => (
-  <ContainerList>
-    {contacts.map(contact => {
-      return (
-        <Item key={contact.id}>
-          <p>{contact.name}</p>
-          <span>{contact.number}</span>
-          <Btn type="submit" onClick={() => deleteContact(contact.id)}>
-            Delete
-          </Btn>
-        </Item>
-      );
-    })}
-  </ContainerList>
-);
+export const ContactList = () => {
+  const { contacts } = useSelector(getContacts);
+  const dispatch = useDispatch();
 
-ContactList.propTypes = {
-  deleteContact: PropTypes.func.isRequired,
-  contacts: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
-      number: PropTypes.string.isRequired,
-    })
-  ).isRequired,
+  const filter = useSelector(getFilterValue);
+
+  const findContact = (array, query) => {
+    const queryValue = query.toLowerCase();
+
+    return array.filter(arr => arr.name.toLowerCase().includes(queryValue));
+  };
+
+  const items = findContact(contacts, filter);
+
+  return (
+    <ContainerList>
+      {items.map(item => {
+        return (
+          <Item key={item.id}>
+            <p>{item.name}</p>
+            <span>{item.number}</span>
+            <Btn type="button" onClick={() => dispatch(deleteСontact(item.id))}>
+              Delete
+            </Btn>
+          </Item>
+        );
+      })}
+    </ContainerList>
+  );
 };
